@@ -1,11 +1,13 @@
 var ac = 10;//aceleracion de caida
 var y1;//ubicacion vertical
+var vel;
 var duracion = 0;//para los puntos
 var colors = ["red", "blue", "yellow", "black", "green"];//colores la wea
 var canvas;// canvas de html
 var ctx;// contexto 2d canvas
-var juego=true;// dice si se esta jugando
-var tope;
+var juego=false;// dice si se esta jugando
+var bloques;
+var it;
 
 $(document).ready(inicio);
 $(document).keydown(capturaTeclado);
@@ -25,23 +27,34 @@ function inicio(){
 	ctx.clearRect(0,0,700,500);
 	ctx.drawImage(buffer, 0, 0);
   $("#inicio").click(function(){
-    ac = 3;
-		duracion = 0;
+    ac = 0.222;
+	duracion = 0;
+	vel=1;
     y1=50;
-    tope=350;
-    juego=true;
+    bloques=[];
+    var ayuda=0;
+    for(j=0;j<5;j++){
+		ayuda=Math.floor(Math.random() * 200);
+		bloques.push(new Bloque(colors[3], 210 + (j*150), 0, ayuda));
+		ayuda+=150;
+		bloques.push(new Bloque(colors[3], 210 + (j*150), ayuda, 500-ayuda));
+	}
+    if(juego==false){
+		juego=true;
 		run();
+		$("#inicio").hide();
+    }
 	});
 }
 
 function capturaTeclado(event){
 	if(event.which==32)
-		ac-=20;
+		vel-=3;
 }
 
 function Bird(){
   this.img = $('#imagen')[0];
-  this.height=35;
+  this.height=32;
   this.width=30;
   this.dibujar = function(ctx){
     ctx.drawImage(this.img, 100, y1);
@@ -65,11 +78,18 @@ this.dentro_cubo = function(){
 
 }
 
-function Bloque(col){
+function Bloque(col, px, py, al){
   this.color=col;
-  this.dibujar=function(ctx, px, py, al){
+  this.pocX=px;
+  this.pocY=py;
+  this.alt=al;
+  this.dibujar=function(ctx){
     ctx.fillStyle=this.color;
-    ctx.fillRect(px,py,100,al);
+    ctx.fillRect(this.pocX,this.pocY,80,this.alt);
+    this.pocX-=1;
+    if(this.pocX<=-100){
+		this.pocX=670;
+	}
     ctx.save();
   }
 }
@@ -82,38 +102,31 @@ function run(){
   if(juego){
     duracion++;
     var bird=new Bird();
-    var bloques=[new Bloque(colors[Math.floor(Math.random() * 5)]),
-      new Bloque(colors[Math.floor(Math.random() * 5)]),
-      new Bloque(colors[Math.floor(Math.random() * 5)]),
-      new Bloque(colors[Math.floor(Math.random() * 5)])];
     contextoBuffer.clearRect(0,0,670,500);
     bird.dibujar(contextoBuffer);
-    for(i=0;i<4;i++){
-      py=Math.floor(Math.random() * 300);
-      bloques[i].dibujar(contextoBuffer, (tope +(i*110))%700, py, 500-py);
-      if(bird.colision((tope +(i*110))%700, py,100, 500-py)){
+    for(i=0;i<10;i++){
+      bloques[i].dibujar(contextoBuffer);
+      if(bird.colision(bloques[i].pocX, bloques[i].pocY,80, bloques[i].alt)){
         juego=false;
       }
     }
     if(juego){
       juego=bird.dentro_cubo();
     }
-    tope-=5;
-    if(tope<=0){
-      tope=350;
-    }
-    y1+=ac;
-    ac+=3;
+    it++;
+	y1+=vel;
+	vel+=ac;
     ctx.clearRect(0,0,670,500);
     ctx.drawImage(buffer, 0, 0);
-    setTimeout("run()",200);
+    setTimeout("run()",20);
   }
   else{
     contextoBuffer.clearRect(0,0,700,500);
-		contextoBuffer.font = "bold 50px sans-serif";
-		contextoBuffer.fillText("GAME OVER", 180, 200);
-		contextoBuffer.fillText("Duracion: "+duracion, 250, 250);
-		ctx.clearRect(0,0,700,500);
-		ctx.drawImage(buffer, 0, 0);
+	contextoBuffer.font = "bold 50px sans-serif";
+	contextoBuffer.fillText("GAME OVER", 180, 200);
+	contextoBuffer.fillText("Duracion: "+duracion, 250, 250);
+	ctx.clearRect(0,0,700,500);
+	ctx.drawImage(buffer, 0, 0);
+	$("#inicio").show();
   }
 }
