@@ -49,12 +49,12 @@ function inicio(){
 
 function capturaTeclado(event){
 	if(event.which==32)
-		vel-=3;
+		vel-=(3+(tiempoV(duracion/100)));
 }
 
 function Bird(){
   this.img = $('#imagen')[0];
-  this.height=32;
+  this.height=35;
   this.width=30;
   this.dibujar = function(ctx){
     ctx.drawImage(this.img, 100, y1);
@@ -62,7 +62,7 @@ function Bird(){
   }
 
   this.colision = function(x,y,w,h){
-    if(100+this.width<x || x+h<100 || y1+this.height<y || y+h<y1){
+    if(100+this.width<x || x+w<100 || y1+this.height<y || y+h<y1){
       return false;
     }
     else{
@@ -79,13 +79,18 @@ this.dentro_cubo = function(){
 }
 
 function Bloque(col, px, py, al){
+	this.img=$('#pared')[0];
   this.color=col;
   this.pocX=px;
   this.pocY=py;
   this.alt=al;
   this.dibujar=function(ctx){
-    ctx.fillStyle=this.color;
-    ctx.fillRect(this.pocX,this.pocY,80,this.alt);
+	  if(this.pocY<=0){
+		  ctx.drawImage(this.img, this.pocX,this.alt-300);
+	  }
+	  else{
+		ctx.drawImage(this.img, this.pocX,this.pocY);
+	  }
     this.pocX-=1;
     if(this.pocX<=-100){
 		this.pocX=670;
@@ -113,20 +118,27 @@ function run(){
     if(juego){
       juego=bird.dentro_cubo();
     }
-    it++;
 	y1+=vel;
 	vel+=ac;
     ctx.clearRect(0,0,670,500);
     ctx.drawImage(buffer, 0, 0);
-    setTimeout("run()",20);
+    setTimeout("run()",tiempo(duracion/100));
   }
   else{
     contextoBuffer.clearRect(0,0,700,500);
 	contextoBuffer.font = "bold 50px sans-serif";
 	contextoBuffer.fillText("GAME OVER", 180, 200);
-	contextoBuffer.fillText("Duracion: "+duracion, 250, 250);
+	contextoBuffer.fillText("Duracion: "+duracion+" mg", 250, 250);
 	ctx.clearRect(0,0,700,500);
 	ctx.drawImage(buffer, 0, 0);
 	$("#inicio").show();
   }
+}
+
+function tiempo(x){
+	return (5 + 20 / (1 + (Math.exp((x/3) - 4))));
+}
+
+function tiempoV(x){
+	return ( 10 / (1 + (Math.exp((-x/3) + 4))));
 }
