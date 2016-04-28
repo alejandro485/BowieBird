@@ -49,7 +49,7 @@ function inicio(){
 
 function capturaTeclado(event){
 	if(event.which==32)
-		vel-=(3+(tiempoV(duracion/100)));
+		vel-=(tiempoV(duracion/30));
 }
 
 function Bird(){
@@ -122,7 +122,8 @@ function run(){
 	vel+=ac;
     ctx.clearRect(0,0,670,500);
     ctx.drawImage(buffer, 0, 0);
-    setTimeout("run()",tiempo(duracion/100));
+	$("#vel").html("Tiempo: "+tiempo(duracion/30));
+    setTimeout("run()",tiempo(duracion/30));
   }
   else{
     contextoBuffer.clearRect(0,0,700,500);
@@ -131,14 +132,15 @@ function run(){
 	contextoBuffer.fillText("Duracion: "+duracion+" mg", 250, 250);
 	ctx.clearRect(0,0,700,500);
 	ctx.drawImage(buffer, 0, 0);
+	$("#vel").html("");
 	$("#inicio").show();
   }
 }
 
 function tiempo(x){
-	return (5 + 20 / (1 + (Math.exp((x/3) - 4))));
+	return (10 + 10 / (1 + (Math.exp((x-20)/6))));
 }
 
 function tiempoV(x){
-	return ( 10 / (1 + (Math.exp((-x/3) + 4))));
+	return (5 + 2 / (1 + (Math.exp(-(x-15)/3))));
 }
